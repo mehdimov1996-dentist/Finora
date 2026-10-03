@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08111f">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Portfolio V2</title>
+<style>
+:root{--bg:#07111f;--card:#0e1b2d;--card2:#122238;--line:#20344e;--text:#edf5ff;--muted:#8fa5bd;--blue:#3b82f6;--green:#32d583;--red:#ff6878}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif}
+header{position:sticky;top:0;z-index:20;background:#07111fee;backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:14px max(16px,calc((100% - 1100px)/2))}
+.header{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-size:20px;font-weight:800}.sub{font-size:11px;color:var(--muted);margin-top:4px}
+main{max-width:1100px;margin:auto;padding:12px 14px 90px}.tabs{display:flex;gap:7px;overflow:auto;padding:4px 0 12px;position:sticky;top:73px;z-index:10;background:var(--bg)}
+.tabs button{white-space:nowrap}.tab.active{background:var(--blue)}
+button{border:0;border-radius:11px;padding:10px 13px;background:var(--card2);color:var(--text);cursor:pointer}button.primary{background:var(--blue)}button.danger{background:#6b2430}
+.page{display:none}.page.active{display:block}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:15px;margin-bottom:10px}.label{color:var(--muted);font-size:12px}.big{font-size:26px;font-weight:800;margin:7px 0}.green{color:var(--green)}.red{color:var(--red)}.blue{color:#79b2ff}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}.row:last-child{border-bottom:0}
+.table{width:100%;border-collapse:collapse}.table th,.table td{text-align:right;padding:10px 7px;border-bottom:1px solid var(--line);font-size:13px}.table th{color:var(--muted)}
+input,select,textarea{width:100%;padding:11px;border-radius:10px;border:1px solid #2a415e;background:#081522;color:var(--text);margin:5px 0 10px;font-family:inherit}textarea{min-height:110px}
+.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.actions{display:flex;gap:8px;flex-wrap:wrap}.empty{text-align:center;color:var(--muted);padding:25px}
+.progress{height:9px;background:#1b2b42;border-radius:10px;overflow:hidden}.bar{height:100%;background:var(--blue)}
+.modal{position:fixed;inset:0;background:#0009;display:none;align-items:flex-end;justify-content:center;z-index:50}.modal.show{display:flex}.sheet{width:min(650px,100%);background:var(--card);border:1px solid var(--line);border-radius:22px 22px 0 0;padding:18px;max-height:90vh;overflow:auto}
+.toast{position:fixed;bottom:75px;left:50%;transform:translateX(-50%);background:#17304d;padding:10px 15px;border-radius:12px;display:none;z-index:60}.toast.show{display:block}
+.bottom{display:none}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.table th:nth-child(3),.table td:nth-child(3){display:none}.bottom{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:30;background:#07111ff5;border-top:1px solid var(--line);padding:8px;justify-content:space-around}.bottom button{background:transparent;padding:7px;font-size:11px}.desktopActions{display:none}.tabs{display:none}main{padding-bottom:90px}.big{font-size:22px}.formgrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="header"><div><div class="brand">Portfolio V2</div><div class="sub">مدیریت سرمایه شخصی • ذخیره دائمی روی دستگاه</div></div><div class="desktopActions actions"><button onclick="openBackup()">💾 بکاپ</button><button onclick="document.getElementById('restore').click()">↩️ ریستور</button></div></div></header>
+<input id="restore" type="file" accept=".json,application/json" hidden onchange="restoreBackup(event)">
+<main>
+<div class="tabs" id="tabs">
+<button class="tab active" data-page="dashboard">داشبورد</button><button class="tab" data-page="assets">دارایی‌ها</button><button class="tab" data-page="trades">معاملات</button><button class="tab" data-page="plans">برنامه‌ها</button><button class="tab" data-page="analysis">تحلیل</button><button class="tab" data-page="settings">تنظیمات</button>
+</div>
+
+<section id="dashboard" class="page active">
+<div class="grid">
+<div class="card"><div class="label">ارزش پرتفوی</div><div class="big" id="totalValue">۰</div><div class="label">تومان</div></div>
+<div class="card"><div class="label">سود/زیان باز</div><div class="big" id="unrealized">۰</div><div class="label">تومان</div></div>
+<div class="card"><div class="label">سود/زیان معاملات بسته</div><div class="big" id="realized">۰</div><div class="label">تومان</div></div>
+<div class="card"><div class="label">تعداد معاملات باز</div><div class="big" id="openTrades">۰</div></div>
+</div>
+<div class="grid2">
+<div class="card"><b>هدف سرمایه‌گذاری</b><div class="row"><span id="goalText">هدف ثبت نشده</span><b id="goalPct">۰٪</b></div><div class="progress"><div class="bar" id="goalBar"></div></div></div>
+<div class="card"><b>وضعیت داده‌ها</b><div class="row"><span>دارایی</span><b id="assetCount">۰</b></div><div class="row"><span>تحلیل</span><b id="analysisCount">۰</b></div></div>
+</div>
+<div class="card"><b>آخرین معاملات</b><div id="recentTrades"></div></div>
+</section>
+
+<section id="assets" class="page"><div class="card"><div class="actions"><button class="primary" onclick="openAsset()">+ افزودن دارایی</button></div><div id="assetList"></div></div></section>
+
+<section id="trades" class="page"><div class="card"><div class="actions"><button class="primary" onclick="openTrade()">+ ثبت معامله</button></div><div id="tradeList"></div></div></section>
+
+<section id="plans" class="page"><div class="card"><div class="actions"><button class="primary" onclick="openPlan()">+ برنامه معامله</button></div><div id="planList"></div></div></section>
+
+<section id="analysis" class="page"><div class="card"><div class="actions"><button class="primary" onclick="openAnalysis()">+ ثبت تحلیل</button></div><div id="analysisList"></div></div></section>
+
+<section id="settings" class="page">
+<div class="card"><h3>بکاپ و ریستور</h3><p class="label">تمام دارایی‌ها، معاملات، برنامه‌ها، تحلیل‌ها، هدف و تنظیمات در یک فایل JSON ذخیره می‌شوند.</p><div class="actions"><button class="primary" onclick="backup()">⬇️ دانلود بکاپ</button><button onclick="document.getElementById('restore').click()">⬆️ ریستور بکاپ</button><button class="danger" onclick="resetData()">حذف همه داده‌ها</button></div></div>
+<div class="card"><h3>هدف سرمایه‌گذاری</h3><div class="formgrid"><div><label class="label">دارایی مبنا</label><input id="goalAsset" placeholder="BTC"></div><div><label class="label">هدف</label><input id="goalTarget" type="number" step="any" placeholder="2"></div></div><div class="formgrid"><div><label class="label">مقدار فعلی</label><input id="goalCurrent" type="number" step="any" placeholder="0.5"></div></div><button class="primary" onclick="saveGoal()">ذخیره هدف</button></div>
+</section>
+</main>
+<div class="bottom"><button onclick="go('dashboard')">🏠<br>خانه</button><button onclick="go('assets')">💰<br>دارایی</button><button onclick="go('trades')">📈<br>معامله</button><button onclick="go('analysis')">📝<br>تحلیل</button><button onclick="go('settings')">⚙️<br>تنظیمات</button></div>
+<div id="modal" class="modal"><div class="sheet" id="sheet"></div></div><div id="toast" class="toast"></div>
+
+<script>
+const KEY='portfolio_v2_data';
+const empty={assets:[],trades:[],plans:[],analyses:[],goal:{asset:'BTC',target:2,current:0}};
+let db=load();
+function load(){try{return Object.assign(empty,JSON.parse(localStorage.getItem(KEY))||{})}catch(e){return empty}}
+function save(){localStorage.setItem(KEY,JSON.stringify(db));render();toast('ذخیره شد')}
+function fa(n){return Number(n||0).toLocaleString('fa-IR',{maximumFractionDigits:2})}
+function money(n){return fa(n)+' تومان'}
+function id(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
+function toast(s){let x=document.getElementById('toast');x.textContent=s;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),1600)}
+function go(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(p).classList.add('active');document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.page===p));scrollTo(0,0)}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>go(b.dataset.page));
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+function openSheet(html){document.getElementById('sheet').innerHTML=html;document.getElementById('modal').classList.add('show')}
+function openAsset(a=null){openSheet(`<h3>${a?'ویرایش':'افزودن'} دارایی</h3><input id="an" placeholder="نام دارایی" value="${a?.name||''}"><input id="as" placeholder="نماد، مثلا BTC" value="${a?.symbol||''}"><input id="aq" type="number" step="any" placeholder="مقدار" value="${a?.qty??''}"><input id="ap" type="number" step="any" placeholder="قیمت فعلی به تومان" value="${a?.price??''}"><div class="actions"><button class="primary" onclick="saveAsset('${a?.id||''}')">ذخیره</button><button onclick="closeModal()">انصراف</button></div>`)}
+function saveAsset(old){let a={id:old||id(),name:an.value.trim(),symbol:as.value.trim().toUpperCase(),qty:+aq.value||0,price:+ap.value||0};if(!a.name||!a.symbol)return alert('نام و نماد را وارد کنید');let i=db.assets.findIndex(x=>x.id===a.id);i>=0?db.assets[i]=a:db.assets.push(a);closeModal();save()}
+function delAsset(i){if(confirm('حذف شود؟')){db.assets.splice(i,1);save()}}
+function openTrade(t=null){openSheet(`<h3>${t?'ویرایش':'ثبت'} معامله</h3><input id="ts" placeholder="نماد" value="${t?.symbol||''}"><select id="tstatus"><option value="OPEN">باز</option><option value="CLOSED">بسته</option></select><input id="tentry" type="number" step="any" placeholder="ارزش ورود (تومان)" value="${t?.entry||''}"><input id="texit" type="number" step="any" placeholder="ارزش خروج (تومان)" value="${t?.exit??''}"><input id="tqty" type="number" step="any" placeholder="حجم" value="${t?.qty??''}"><textarea id="tn" placeholder="یادداشت">${t?.note||''}</textarea><div class="actions"><button class="primary" onclick="saveTrade('${t?.id||''}')">ذخیره</button><button onclick="closeModal()">انصراف</button></div>`)}
+function saveTrade(old){let t={id:old||id(),symbol:ts.value.trim().toUpperCase(),status:tstatus.value,entry:+tentry.value||0,exit:+texit.value||0,qty:+tqty.value||0,note:tn.value};if(!t.symbol)return alert('نماد را وارد کنید');let i=db.trades.findIndex(x=>x.id===t.id);i>=0?db.trades[i]=t:db.trades.push(t);closeModal();save()}
+function delTrade(i){if(confirm('حذف شود؟')){db.trades.splice(i,1);save()}}
+function openPlan(p=null){openSheet(`<h3>${p?'ویرایش':'برنامه معامله'}</h3><input id="ps" placeholder="نماد" value="${p?.symbol||''}"><input id="pentry" placeholder="محدوده ورود" value="${p?.entry||''}"><input id="pstop" placeholder="حد ضرر" value="${p?.stop||''}"><input id="ptarget" placeholder="هدف" value="${p?.target||''}"><input id="pprice" type="number" placeholder="قیمت فعلی" value="${p?.price??''}"><div class="actions"><button class="primary" onclick="savePlan('${p?.id||''}')">ذخیره</button><button onclick="closeModal()">انصراف</button></div>`)}
+function savePlan(old){let p={id:old||id(),symbol:ps.value.trim().toUpperCase(),entry:pentry.value,stop:pstop.value,target:ptarget.value,price:+pprice.value||0};if(!p.symbol)return alert('نماد را وارد کنید');let i=db.plans.findIndex(x=>x.id===p.id);i>=0?db.plans[i]=p:db.plans.push(p);closeModal();save()}
+function delPlan(i){if(confirm('حذف شود؟')){db.plans.splice(i,1);save()}}
+function openAnalysis(a=null){openSheet(`<h3>${a?'ویرایش':'ثبت'} تحلیل</h3><input id="at" placeholder="عنوان" value="${a?.title||''}"><input id="asym" placeholder="نماد" value="${a?.symbol||''}"><textarea id="ac" placeholder="متن تحلیل">${a?.content||''}</textarea><input id="astop" placeholder="حد ضرر" value="${a?.stop||''}"><input id="atarget" placeholder="هدف" value="${a?.target||''}"><div class="actions"><button class="primary" onclick="saveAnalysis('${a?.id||''}')">ذخیره</button><button onclick="closeModal()">انصراف</button></div>`)}
+function saveAnalysis(old){let a={id:old||id(),title:at.value,symbol:asym.value.toUpperCase(),content:ac.value,stop:astop.value,target:atarget.value,date:new Date().toISOString()};let i=db.analyses.findIndex(x=>x.id===a.id);i>=0?db.analyses[i]=a:db.analyses.push(a);closeModal();save()}
+function delAnalysis(i){if(confirm('حذف شود؟')){db.analyses.splice(i,1);save()}}
+function saveGoal(){db.goal={asset:goalAsset.value||'BTC',target:+goalTarget.value||0,current:+goalCurrent.value||0};save()}
+function backup(){let blob=new Blob([JSON.stringify({version:2,exportedAt:new Date().toISOString(),data:db},null,2)],{type:'application/json'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='portfolio-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href)}
+function openBackup(){go('settings')}
+function restoreBackup(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);db=x.data||x;localStorage.setItem(KEY,JSON.stringify(db));render();toast('بکاپ با موفقیت بازیابی شد')}catch(err){alert('فایل بکاپ معتبر نیست')}};r.readAsText(f);e.target.value=''}
+function resetData(){if(confirm('تمام اطلاعات پاک شود؟')){localStorage.removeItem(KEY);db=load();render();toast('اطلاعات پاک شد')}}
+function render(){
+let total=db.assets.reduce((s,a)=>s+a.qty*a.price,0);let unreal=db.trades.filter(t=>t.status==='OPEN').reduce((s,t)=>s+(t.qty*(t.exit||t.entry)-t.entry*t.qty),0);let real=db.trades.filter(t=>t.status==='CLOSED').reduce((s,t)=>s+(t.exit-t.entry)*t.qty,0);
+totalValue.textContent=fa(total);unrealized.textContent=fa(unreal);realized.textContent=fa(real);openTrades.textContent=fa(db.trades.filter(t=>t.status==='OPEN').length);assetCount.textContent=fa(db.assets.length);analysisCount.textContent=fa(db.analyses.length);
+let gp=db.goal.target?Math.min(100,db.goal.current/db.goal.target*100):0;goalText.textContent=`${fa(db.goal.current)} / ${fa(db.goal.target)} ${db.goal.asset}`;goalPct.textContent=fa(gp)+'٪';goalBar.style.width=gp+'%';
+document.getElementById('assetList').innerHTML=db.assets.length?'<table class="table"><tr><th>دارایی</th><th>مقدار</th><th>ارزش</th><th></th></tr>'+db.assets.map((a,i)=>`<tr><td><b>${a.name}</b><br><span class="label">${a.symbol}</span></td><td>${fa(a.qty)}</td><td>${money(a.qty*a.price)}</td><td><button onclick='openAsset(${JSON.stringify(a)})'>ویرایش</button> <button onclick='delAsset(${i})'>×</button></td></tr>`).join('')+'</table>':'<div class="empty">هنوز دارایی ثبت نشده</div>';
+document.getElementById('tradeList').innerHTML=db.trades.length?db.trades.map((t,i)=>`<div class="row"><div><b>${t.symbol}</b><br><span class="label">${t.status==='OPEN'?'باز':'بسته'} • حجم ${fa(t.qty)}</span></div><div class="${t.status==='CLOSED'?(t.exit>=t.entry?'green':'red'):''}">${t.status==='CLOSED'?money((t.exit-t.entry)*t.qty):money((t.exit-t.entry)*t.qty)}</div><div><button onclick='openTrade(${JSON.stringify(t)})'>✏️</button><button onclick='delTrade(${i})'>×</button></div></div>`).join(''):'<div class="empty">هنوز معامله‌ای ثبت نشده</div>';
+document.getElementById('planList').innerHTML=db.plans.length?db.plans.map((p,i)=>`<div class="row"><div><b>${p.symbol}</b><br><span class="label">ورود: ${p.entry} • حد ضرر: ${p.stop} • هدف: ${p.target}</span></div><div><span class="badge">${p.price?('قیمت '+fa(p.price)):'بدون قیمت'}</span><button onclick='delPlan(${i})'>×</button></div></div>`).join(''):'<div class="empty">برنامه‌ای ثبت نشده</div>';
+document.getElementById('analysisList').innerHTML=db.analyses.length?db.analyses.map((a,i)=>`<div class="card"><div class="row"><b>${a.title||'بدون عنوان'}</b><span class="label">${a.symbol}</span></div><p>${(a.content||'').replace(/</g,'&lt;').replace(/\n/g,'<br>')}</p><div class="actions"><button onclick='openAnalysis(${JSON.stringify(a)})'>ویرایش</button><button onclick='delAnalysis(${i})'>حذف</button></div></div>`).join(''):'<div class="empty">هنوز تحلیلی ثبت نشده</div>';
+document.getElementById('recentTrades').innerHTML=db.trades.slice(-5).reverse().map(t=>`<div class="row"><span>${t.symbol}</span><span>${t.status==='OPEN'?'باز':'بسته'}</span></div>`).join('')||'<div class="empty">—</div>';
+goalAsset.value=db.goal.asset;goalTarget.value=db.goal.target;goalCurrent.value=db.goal.current;
+}
+render();
+</script>
+</body></html>
